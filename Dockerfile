@@ -56,13 +56,19 @@ RUN mem_kb=$(awk '/MemAvailable/ {print $2}' /proc/meminfo) \
       -DPTLIB_BUILD_SAMPLES=OFF \
     && cmake --build /tmp/ptlib --parallel "$jobs" \
     && cmake --install /tmp/ptlib --prefix /usr/local \
+    && cmake -S /src/opalvoip-opal -B /tmp/opal \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DOPAL_PTLIB_DIR=/usr/local \
+      -DOPAL_BUILD_SAMPLES=OFF \
+      -DOPAL_PLUGINS=OFF \
+      -DOPAL_H323=${CALLBOX_H323} \
+      -DOPAL_SIP=${CALLBOX_SIP} \
+    && cmake --build /tmp/opal --parallel "$jobs" \
+    && cmake --install /tmp/opal --prefix /usr/local \
     && cmake -S /src/callbox -B /tmp/callbox \
       -DCMAKE_BUILD_TYPE=Release \
       -DCALLBOX_PTLIB_DIR=/usr/local \
-      -DCALLBOX_OPAL_DIR=/src/opalvoip-opal \
-      -DCALLBOX_H323=${CALLBOX_H323} \
-      -DCALLBOX_SIP=${CALLBOX_SIP} \
-      -DOPAL_PLUGINS=OFF \
+      -DCALLBOX_OPAL_DIR=/usr/local \
     && cmake --build /tmp/callbox --parallel "$jobs" \
     && cmake --install /tmp/callbox --prefix /usr/local \
     && mkdir -p /export/bin /export/lib \

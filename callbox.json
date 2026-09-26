@@ -1,3 +1,24 @@
 {
-  "database": "callbox.db"
+  "bindAddress": "0.0.0.0",
+  "database": "callbox.db",
+  "numbers": [
+    {
+      "alias": "1000",
+      "mode": "ivr",
+      "audioCodecs": ["G.722", "G.711-ALaw-64k"],
+      "videoCodecs": ["H.264"],
+      "videoImage": "images/ColourBars_4_3.png",
+      "sipPort": 5060,
+      "h323Port": 1720
+    },
+    {
+      "alias": "2000",
+      "mode": "conference",
+      "audioCodecs": ["G.722", "G.711-ALaw-64k"],
+      "videoCodecs": ["H.264"],
+      "features": ["hold"],
+      "sipPort": 5060,
+      "h323Port": 1720
+    }
+  ]
 }
