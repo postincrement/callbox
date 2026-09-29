@@ -32,15 +32,22 @@ if ($Regenerate) {
         "-DOPAL_PTLIB_DIR=$ptlibBuild",
         "-DOPAL_BUILD_SAMPLES=ON"
     )
-    if ($env:WXDIR) {
-        $configureArgs += @("-DwxWidgets_ROOT_DIR=$env:WXDIR")
-    }
+    $usingVcpkg = $false
     if ($env:CMAKE_TOOLCHAIN_FILE) {
         $configureArgs += @("-DCMAKE_TOOLCHAIN_FILE=$env:CMAKE_TOOLCHAIN_FILE")
+        if ($env:CMAKE_TOOLCHAIN_FILE -match "vcpkg") {
+            $usingVcpkg = $true
+        }
     }
     elseif ($env:VCPKG_ROOT) {
         $toolchain = Join-Path $env:VCPKG_ROOT "scripts\buildsystems\vcpkg.cmake"
         $configureArgs += @("-DCMAKE_TOOLCHAIN_FILE=$toolchain")
+        $usingVcpkg = $true
+    }
+    # WXDIR is a wxWidgets source tree. vcpkg's toolchain finds its own install,
+    # and a ROOT_DIR set here hides that.
+    if ($env:WXDIR -and -not $usingVcpkg) {
+        $configureArgs += @("-DwxWidgets_ROOT_DIR=$env:WXDIR")
     }
     & cmake @configureArgs
     if ($LASTEXITCODE -ne 0) {
@@ -73,7 +80,7 @@ if ($LASTEXITCODE -ne 0) {
 $openPhoneProject = Join-Path $build "samples\openphone.vcxproj"
 $openPhoneMakefileDir = Join-Path $build "samples\CMakeFiles\openphone.dir"
 if (-not (Test-Path -LiteralPath $openPhoneProject) -and -not (Test-Path -LiteralPath $openPhoneMakefileDir)) {
-    Write-Error "OpenPhone was not generated. Install wxWidgets, set WXDIR to that tree, and run this script with -Regenerate."
+    Write-Error "OpenPhone was not generated. With vcpkg, run this script with -Regenerate so the manifest can install wxwidgets. Otherwise set WXDIR to a wxWidgets tree and reconfigure."
 }
 
 Write-Host "Building OpenPhone"
