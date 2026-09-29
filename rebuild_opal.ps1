@@ -32,6 +32,9 @@ if ($Regenerate) {
         "-DOPAL_PTLIB_DIR=$ptlibBuild",
         "-DOPAL_BUILD_SAMPLES=ON"
     )
+    if ($env:WXDIR) {
+        $configureArgs += @("-DwxWidgets_ROOT_DIR=$env:WXDIR")
+    }
     if ($env:CMAKE_TOOLCHAIN_FILE) {
         $configureArgs += @("-DCMAKE_TOOLCHAIN_FILE=$env:CMAKE_TOOLCHAIN_FILE")
     }
@@ -67,6 +70,13 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
-$cmakeArgs += @("--target", "openphone")
+$openPhoneProject = Join-Path $build "samples\openphone.vcxproj"
+$openPhoneMakefileDir = Join-Path $build "samples\CMakeFiles\openphone.dir"
+if (-not (Test-Path -LiteralPath $openPhoneProject) -and -not (Test-Path -LiteralPath $openPhoneMakefileDir)) {
+    Write-Error "OpenPhone was not generated. Install wxWidgets, set WXDIR to that tree, and run this script with -Regenerate."
+}
+
+Write-Host "Building OpenPhone"
+$cmakeArgs += @("--target", "openphone", "-j", "4")
 & cmake @cmakeArgs
 exit $LASTEXITCODE
