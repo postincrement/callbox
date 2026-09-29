@@ -78,6 +78,9 @@ set(OPAL_DIR "${_callbox_opal_dir}")
 find_package(PTLib CONFIG REQUIRED)
 find_package(OPAL CONFIG REQUIRED)
 find_package(SQLite3 REQUIRED)
+if(NOT TARGET SQLite3::SQLite3)
+  add_library(SQLite3::SQLite3 ALIAS SQLite::SQLite3)
+endif()
 
 add_executable(callbox
   src/main.cxx
@@ -85,7 +88,7 @@ add_executable(callbox
   src/calls.cxx
   src/db/database.cxx
   src/db/sqlite_database.cxx)
-target_link_libraries(callbox PRIVATE OPAL::opal PTLib::ptlib SQLite::SQLite3)
+target_link_libraries(callbox PRIVATE OPAL::opal PTLib::ptlib SQLite3::SQLite3)
 
 function(callbox_imported_libdir target out_var)
   string(TOUPPER "${CMAKE_BUILD_TYPE}" _cfg)
