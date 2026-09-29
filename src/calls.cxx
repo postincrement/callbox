@@ -91,7 +91,10 @@ static bool PrepareVideoImage(PString & image, const PDirectory & configDirector
 #else
   PVideoFile * file = PVideoFileFactory::CreateInstance(path.GetType());
   if (file == NULL) {
-    std::cerr << "Video image for " << where << " must be a JPEG or BMP file: " << path << std::endl;
+    std::cerr << "Video image for " << where << " must be a JPEG or BMP file: " << path;
+    if (path.GetType() *= ".png")
+      std::cerr << ". Recompile PTLib with ImageMagick to support PNG files";
+    std::cerr << std::endl;
     return false;
   }
 

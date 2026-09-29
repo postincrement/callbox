@@ -3,6 +3,8 @@
 #include "calls.h"
 #include "db/sqlite_database.h"
 
+#include <opal/mediafmt.h>
+
 #include <ptclib/pjson.h>
 #include <ptlib/pluginmgr.h>
 #include <ptlib/tracing.h>
@@ -13,6 +15,25 @@
 #endif
 
 #include <iostream>
+
+static void WriteCodecList(ostream & strm, const char * heading, const OpalMediaType & type)
+{
+  OpalMediaFormatList formats = OpalMediaFormat::GetAllRegisteredMediaFormats();
+  PStringArray names;
+  for (OpalMediaFormatList::iterator format = formats.begin(); format != formats.end(); ++format) {
+    if (format->IsTransportable() && format->IsMediaType(type))
+      names.AppendString(format->GetName());
+  }
+
+  strm << heading << ':' << endl;
+  if (names.IsEmpty()) {
+    strm << "  none" << endl;
+    return;
+  }
+  for (PINDEX i = 0; i < names.GetSize(); ++i)
+    strm << "  " << names[i] << endl;
+}
+
 
 static void Usage(ostream & strm, const PArgList & args)
 {
@@ -159,8 +180,14 @@ void CallboxProcess::Main()
 
   cout << "callbox linked with OPAL " << OpalGetVersion() << endl
        << "configuration: " << configPath << endl
-       << "database: " << databasePath << endl
-       << "Listening. Stop with Ctrl-C or SIGTERM." << endl;
+       << "database: " << databasePath << endl;
+  WriteCodecList(cout, "Audio codecs", OpalMediaType::Audio());
+#if OPAL_VIDEO
+  WriteCodecList(cout, "Video codecs", OpalMediaType::Video());
+#else
+  cout << "Video codecs:" << endl << "  none" << endl;
+#endif
+  cout << "Listening. Stop with Ctrl-C or SIGTERM." << endl;
 
   m_stop.Wait();
   calls.Stop();
