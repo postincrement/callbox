@@ -1,14 +1,25 @@
 # PowerShell equivalent of rebuild_opal.sh.
 #   powershell -File callbox\rebuild_opal.ps1
 #   powershell -File callbox\rebuild_opal.ps1 -Regenerate
+#   powershell -File callbox\rebuild_opal.ps1 -NoObsoleteCodecs
+#   powershell -File callbox\rebuild_opal.ps1 -NoT38
+#   powershell -File callbox\rebuild_opal.ps1 -OpalMin
 #
 # -Regenerate deletes the build directory and generates a Visual Studio 2022
 # x64 solution against the sibling PTLib build, with samples enabled so
-# OpenPhone exists. Pass -Config Debug for a Debug build. Multi-config
+# OpenPhone exists. -NoObsoleteCodecs omits Speex, iLBC, LPC-10, H.261,
+# G.722, G.722.1, G.722.2, G.726, G.728, GSM 06.10, Theora, G.723.1, and
+# VoiceAge G.729. -NoT38 omits T.38
+# and fax. -OpalMin omits those obsolete codecs, plus T.38, fax, RFC 4175,
+# T.120, Skinny, and line interface devices. Pass -Config Debug for a Debug build.
+# Multi-config
 # generators otherwise build Release. Single-config generators ignore -Config.
 param(
     [string]$Config,
-    [switch]$Regenerate
+    [switch]$Regenerate,
+    [switch]$NoObsoleteCodecs,
+    [switch]$NoT38,
+    [switch]$OpalMin
 )
 
 $ErrorActionPreference = "Stop"
@@ -32,6 +43,15 @@ if ($Regenerate) {
         "-DOPAL_PTLIB_DIR=$ptlibBuild",
         "-DOPAL_BUILD_SAMPLES=ON"
     )
+    if ($NoObsoleteCodecs) {
+        $configureArgs += @("-DOPAL_OBSOLETE_CODECS=OFF")
+    }
+    if ($NoT38) {
+        $configureArgs += @("-DOPAL_T38_CAPABILITY=OFF")
+    }
+    if ($OpalMin) {
+        $configureArgs += @("-DOPAL_OPALMIN=ON")
+    }
     $usingVcpkg = $false
     $vcpkgRoot = $null
     if ($env:CMAKE_TOOLCHAIN_FILE) {
@@ -85,6 +105,23 @@ if (-not (Test-Path -LiteralPath $build)) {
     Write-Error "OPAL build directory not found: $build. Pass -Regenerate to create a Visual Studio 2022 solution."
 }
 $build = (Resolve-Path -LiteralPath $build).Path
+
+if (-not $Regenerate -and ($NoObsoleteCodecs -or $NoT38 -or $OpalMin)) {
+    $reconfigureArgs = @("-S", $source, "-B", $build)
+    if ($NoObsoleteCodecs) {
+        $reconfigureArgs += @("-DOPAL_OBSOLETE_CODECS=OFF")
+    }
+    if ($NoT38) {
+        $reconfigureArgs += @("-DOPAL_T38_CAPABILITY=OFF")
+    }
+    if ($OpalMin) {
+        $reconfigureArgs += @("-DOPAL_OPALMIN=ON")
+    }
+    & cmake @reconfigureArgs
+    if ($LASTEXITCODE -ne 0) {
+        exit $LASTEXITCODE
+    }
+}
 
 if (-not $Config) {
     $cache = Join-Path $build "CMakeCache.txt"
