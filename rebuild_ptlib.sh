@@ -10,7 +10,7 @@
 # then builds. The generator is CMake's default for this platform.
 # --minsize matches configure --enable-minsize: the lesser-used modules are
 # left out. --opalmin omits FTP, Telnet, ILS, LDAP, SOAP, XML-RPC, SNMP,
-# RFC1155, vCard, XMPP, SASL, serial, modem, and internet mail. Either can be
+# RFC1155, vCard, XMPP, SASL, serial, remote connection, modem, and internet mail. Either can be
 # combined with --regenerate.
 set -eu
 

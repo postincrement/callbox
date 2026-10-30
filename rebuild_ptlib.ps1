@@ -8,7 +8,7 @@
 # -Regenerate deletes the build directory and generates a Visual Studio 2022
 # x64 solution. -MinSize matches configure --enable-minsize and leaves out
 # the lesser-used modules. -OpalMin omits FTP, Telnet, ILS, LDAP, SOAP,
-# XML-RPC, SNMP, RFC1155, vCard, XMPP, SASL, serial, modem, and internet mail.
+# XML-RPC, SNMP, RFC1155, vCard, XMPP, SASL, serial, remote connection, modem, and internet mail.
 # Pass -Config Debug for a Debug build. Multi-config generators otherwise
 # build Release. Single-config generators ignore -Config.
 param(
