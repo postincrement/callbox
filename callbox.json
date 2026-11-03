@@ -5,17 +5,26 @@
     {
       "alias": "1000",
       "mode": "ivr",
-      "audioCodecs": ["G.722", "G.711-ALaw-64k"],
-      "videoCodecs": ["H.264"],
+      "audioCodecs": [ "G.711-ALaw-64k"],
+      "videoCodecs": ["H.264-1"],
       "videoImage": "images/ColourBars_4_3.png",
+      "sipPort": 5060,
+      "h323Port": 1720
+    },
+    {
+      "alias": "1001",
+      "mode": "ivr",
+      "audioCodecs": [ "G.711-ALaw-64k"],
+      "videoCodecs": ["H.264-1"],
+      "videoImage": "images/test_pattern-16_9.jpg",
       "sipPort": 5060,
       "h323Port": 1720
     },
     {
       "alias": "2000",
       "mode": "conference",
-      "audioCodecs": ["G.722", "G.711-ALaw-64k"],
-      "videoCodecs": ["H.264"],
+      "audioCodecs": [ "G.711-ALaw-64k"],
+      "videoCodecs": ["H.264-1"],
       "features": ["hold"],
       "sipPort": 5060,
       "h323Port": 1720
